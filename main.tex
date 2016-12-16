@@ -1,5 +1,8 @@
 \documentclass{beamer}
-\usetheme[faculty=fi]{fibeamer}
+\useoutertheme{smoothbars}
+\usecolortheme{orchid}
+\usecolortheme{whale}
+\useinnertheme[shadow=true]{rounded}
 
 % Localization
 \usepackage{polyglossia}
@@ -251,12 +254,8 @@
 \addbibresource{main.bib}
 
 % Miscellaneous packages and other setup
-\ifx\ifdarkframes\undefined
-  \expandafter\newif\csname ifdarkframes\endcsname
-  \darkframestrue
-\fi
 \usepackage{minted}
-\usemintedstyle{\ifdarkframes monokai\else murphy\fi}
+\usemintedstyle{murphy}
 \frenchspacing
 \usepackage{pgffor}
 \newcommand\becomes{%
@@ -280,10 +279,6 @@
 \begin{document}
 \frame{\maketitle}
 \AtBeginSection[]{\frame{\sectionpage}}
-
-\ifdarkframes
-\begin{darkframes}
-\fi
 
 \begin{frame}{\contentsname}
   \tableofcontents
@@ -778,7 +773,4 @@ else
 \end{frame}
 
 \markdownEnd
-\ifdarkframes
-\end{darkframes}
-\fi
 \end{document}
