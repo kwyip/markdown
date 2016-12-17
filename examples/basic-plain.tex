@@ -1,0 +1,16 @@
+\input opmac
+\input markdown
+
+\def\markdownOptionInlineFootnotes{true}%
+\def\markdownRendererEmphasis#1{{\it #1}}%
+\let\markdownRendererFootnote=\fnote
+\def\markdownRendererLink#1#2#3#4{%
+  #1\fnote{Vizte \url{#3} (#4)}%
+}%
+
+\markdownBegin
+Toto je [odkaz.](https://odkaz.cz/ "Titulek")
+Toto je *zvýrazněný text*.
+Toto je poznámka pod čarou.^[Toto je text poznámky.]
+\markdownEnd
+\bye

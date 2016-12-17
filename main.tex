@@ -24,6 +24,7 @@
     headingThree = {\frametitle{#1}},
     headingFour = {\framesubtitle{#1}},
     footnote = {\footnote[frame]{#1}},
+    link = {#1\footnote{Vizte \url{#3} (#4)}},
   }
 }
 
@@ -295,8 +296,8 @@
 \end{frame}
 
 \markdownBegin
-# Úvod
-## Proč používat odlehčené značkování
+# Jazyk Markdown
+## Vlastnosti \TeX ových formátů a Markdownu
 
 \begin{frame}
 
@@ -420,7 +421,7 @@ Odstavec se _zvýrazněným textem_
 #### Švýcarský armádní nůž Pandoc
 
 > If you need to convert files from one markup format into another,
-> Pandoc is your swiss-army knife.
+> Pandoc is your _swiss-army knife_.
 
 \hfill --- @macfarlane16-1
 
@@ -563,7 +564,7 @@ neefektivní.
 #### Knihovna Lunamark
 
 Knihovnu jsem modifikoval tak, aby generovala parsovací strom zakódovaný
-pomocí \TeX ových maker namísto prezentačního značkování:
+pomocí maker \TeX u místo prezentačního značkování:
 
 ```markdown
 # Nadpis
@@ -577,7 +578,7 @@ Toto je \markdownRendererLink{odkaz}{#odkaz}{#odkaz}{}.
 
 ***
 
-Zároveň jsem připravil makrobalík `markdown.tex`, který:
+Zároveň jsem připravil makrobalík [`markdown.tex`,](https://github.com/witiko/markdown "A package for converting and rendering Markdown documents inside TeX") který:
 
   * zkonvertuje dokument v jazyce Markdown pomocí Lunamarku,
   * zadefinuje \TeX ová makra Lunamarku a dokument vysází.
@@ -612,7 +613,7 @@ Foo bar \markdownRendererBackslash TeX\markdownRendererLeftBrace{}\markdownRende
 \begin{frame}
 
 ### \subsecname
-#### Mapování tokenů jazyka Markdown na \TeX ová makra
+#### Mapování prvků jazyka Markdown na \TeX ová makra
 
 ```tex
 \documentclass{article}
@@ -629,7 +630,7 @@ Foo bar \markdownRendererBackslash TeX\markdownRendererLeftBrace{}\markdownRende
 
 \becomes\medskip
 
-Foo bar\footnote[frame]{Vizte \url{https://odkaz.cz/} (Titulek)}.
+Foo [bar](https://odkaz.cz/ "Titulek").
 
 \end{frame}
 \begin{frame}
@@ -771,6 +772,8 @@ else
 ~~~~~~
 
 \end{frame}
+
+# Ukázky a dotazy
 
 # \refname
 

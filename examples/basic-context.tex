@@ -1,0 +1,19 @@
+\usemodule[t][markdown]
+\usetypescript[modern][ec]
+\enableregime[utf]
+
+\def\markdownOptionHybrid{true}%
+\def\markdownOptionInlineFootnotes{true}%
+\def\markdownRendererEmphasis#1{{\em #1}}%
+\let\markdownRendererFootnote=\footnote
+\def\markdownRendererLink#1#2#3#4{%
+  #1\footnote{Vizte \hyphenatedurl{#3} (#4)}%
+}%
+
+\starttext
+\startmarkdown
+Toto je [odkaz.](https://odkaz.cz/ "Titulek")
+Toto je *zvýrazněný text*.
+Toto je poznámka pod čarou.^[Toto je text poznámky.]
+\stopmarkdown
+\stoptext
