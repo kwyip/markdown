@@ -1,17 +1,17 @@
 \documentclass{beamer}
-\useoutertheme{smoothbars}
 \usecolortheme{orchid}
 \usecolortheme{whale}
 \useinnertheme[shadow=true]{rounded}
 
 % Localization
 \usepackage{polyglossia}
-\setmainlanguage{english}
+\setmainlanguage{czech}
 
 % Markdown setup
 \usepackage[
   hybrid,
   footnotes,
+  inlineFootnotes,
   fencedCode,
   citations,
   definitionLists,
@@ -254,28 +254,38 @@
 \addbibresource{main.bib}
 
 % Miscellaneous packages and other setup
+\hypersetup{
+  unicode = true,
+  pdfencoding = true,
+}
+\usepackage{hologo}
 \usepackage{minted}
 \usemintedstyle{murphy}
 \frenchspacing
 \usepackage{pgffor}
 \newcommand\becomes{%
   \vspace{1ex}%
-  \foreach\n in {1,...,30}{%
-    \textdownarrow
+  \foreach\n in {1,...,34}{%
+    \textdownarrow~%
   }%
   \vspace{1ex}%
 }
 
 % Metadata
 \title{
-  A \texorpdfstring{%
-    \raisebox{-1.7mm}{\includegraphics[scale=0.2]{markdown-mark}}%
-  }{Markdown}\ Interpreter for \TeX}
+  Práce s jazykem \texorpdfstring{%
+    \raisebox{-1.4mm}{\includegraphics[scale=0.16]{markdown-mark}}%
+  }{Markdown} v rámci\\\TeX ových dokumentů}
 \subtitle{%
-  Project MUNI 33 / 12 2015
   \texorpdfstring{\url{https://github.com/witiko/markdown}}{}%
 }
 \author{Vít Novotný}
+%\def\CS{\textsc{c\lower.5ex\hbox{s}\kern-.075em}}
+\institute{%
+  Fakulta informatiky Masarykovy Univerzity, Brno%\\
+% Valné shromáždění \CS\textsc{tug}u (\textsc{mendelu}, Brno)
+}
+\date{17. prosince 2016}
 \begin{document}
 \frame{\maketitle}
 \AtBeginSection[]{\frame{\sectionpage}}
@@ -285,38 +295,87 @@
 \end{frame}
 
 \markdownBegin
-# Introduction
-## The Case for Lightweight Markup
+# Úvod
+## Proč používat odlehčené značkování
 
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with \TeX?
+#### Cožpak mi \TeX{} nepřijde dost dobrý?
 
-  1. High Markup to Text Ratio
-    * @knuth86 is 22\,\% markup.
-    * @downey16 is 21\,\% markup.
-  2. Zero Sandboxing Support
-    * The document you are typesetting may not compile.
+  1. Vysoký poměr značkování vůči textu
+    * @knuth86 je z 22\,\% značkování.
+    * @downey16 je z 21\,\% značkování.
+  2. Nulové odstínění uživatele od vnitřností \TeX u
+    * Sázený dokument se nemusí zkompilovat.
       ```tex
-      … a file named \texttt{evil_underscores.tex} …
+      … v souboru {\tt zpropadená_podtržítka.tex} …
       ```
-    * The document you are typesetting may halt.
+    * Sázený dokument může skončit v nekonečné smyčce.
       ```tex
-      \def\whiletrue{\whiletrue} \whiletrue
+      \def\whiletrue{\whiletrue}\whiletrue
       ```
-    * The document you are typesetting may access the system shell.
+    * Sázený dokument může přistupovat k příkazové řádce systému.
       ```tex
       \immediate\write18{sudo rm -rf /}
       ```
-  3. Steep Learning Curve
+  3. Dlouhá křivka učení
 
 \end{frame}
-\iffalse
 \begin{frame}
 
 ### \subsecname
-#### The Language of Markdown
+#### Srovnání \LaTeX u s jazykem Markdown
+
+\footnotesize
+```tex
+\section{Nadpis první úrovně}
+\subsection{Nadpis druhé úrovně}
+Odstavec se \emph{zvýrazněným textem}
+\begin{quotation}
+  Citát
+\end{quotation}
+\begin{verbatim}
+  Ukázka zdrojového kódu
+\end{verbatim}
+\begin{itemize}
+  \item Bod seznamu se \alert{silně zvýrazněným textem}
+  \item Bod seznamu s odkazem%
+    \footnote{Vizte \url{https://odkaz.cz} (Titulek)}
+\end{itemize}
+\begin{enumerate}
+  \item Bod seznamu s \verb`ukázkou zdrojového kódu`
+  \item Bod seznamu s obrázkem \includegraphics{obrázek.svg}
+\end{enumerate}
+```
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Srovnání \LaTeX u s jazykem Markdown
+
+```markdown
+# Nadpis první úrovně
+## Nadpis druhé úrovně
+Odstavec se _zvýrazněným textem_
+
+> Citát
+
+␣␣␣␣Ukázka zdrojového kódu.
+
+* Bod seznamu se **silně zvýrazněným textem**
+* Bod seznamu s [odkazem](https://odkaz.cz/ "Titulek")
+
+1. Bod seznamu s `ukázkou zdrojového kódu`
+2. Bod seznamu s ![obrázkem](obrázek.svg "Titulek")
+```
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Jazyk Markdown
 
 > The overriding design goal for Markdown’s formatting syntax is to make it
 > *as readable as possible*. The idea is that a Markdown-formatted document
@@ -326,169 +385,126 @@
 > biggest source of inspiration for Markdown’s syntax is *the format of plain
 > text email*.
 
-\hfill --- @gruber04, emphasis mine
+\hfill --- @gruber04
 
-\end{frame}
-\fi
-\begin{frame}
-
-### \subsecname
-#### Comparison of \LaTeX{} and Markdown
-
-\footnotesize
-```tex
-\section{This is a level one heading}
-This is a text paragraph with \emph{emphasis}.
-\begin{quotation}This paragraph will show as a quote.\end{quotation}
-\begin{verbatim}
-This is is a source code example.
-\end{verbatim}
-\begin{itemize}
-  \item First item with \alert{strong emphasis}
-  \item Second item with a link%
-    \footnote{See \url{http://link.com} (Title)}
-\end{itemize}
-\begin{enumerate}
-  \item First item with \verb`inline code`.
-  \item Second item with an \includegraphics{image.png}
-\end{enumerate}
-```
+  * Původní jazyk byl navržen pro přípravu HTML dokumentů.
+  * Dnes existuje množství nástrojů (Pandoc, MultiMarkdown), které umožňují
+    použití jazyka s jinými jazyky (\LaTeX).
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Comparison of \LaTeX{} and Markdown
+#### Výhody jazyka Markdown
 
-```markdown
-# This is a level one heading
-This is a text paragraph with _emphasis_.
-> This paragraph will show as a quote.
-
-␣␣␣␣This is is a source code example.
-
-* First item with **strong emphasis**
-* Second item with a [link](http://link.com/ "Title")
-
-1. First item with `inline code`.
-2. Second item with an ![image](image.png "Title")
-```
-
-\end{frame}
-\begin{frame}
-
-### \subsecname
-#### How is Markdown Useful?
-
-  1. Minimal Markup to Text Ratio
-    * Recall: @knuth86 and @downey16 are _\textasciitilde 22\,\% markup_.
-    * @gillespie16 is 5.5\,\% markup.
-    * @grolemund16 is 3.8\,\% markup.
-  2. Sandboxing Support
-    * A Markdown document converted to \TeX{} will always compile.
-    * The document may neither halt nor access the shell.
-  3. Hybrid Markup Support
-    * Markdown was designed to supplement HTML, not replace it.
-    * Structurally simple sections can use pure Markdown, complex sections
-      may combine Markdown and the host markup.
-  4. Mild Learning Curve
+  1. Minimální poměr značkování vůči textu
+    * @knuth86 a @downey16 jsou _z \textasciitilde 22\,\% značkování_.
+    * @gillespie16 je z 5.5\,\% značkování.
+    * @grolemund16 je z 3.8\,\% značkování.
+  2. Úplné odstínění od vnitřností \TeX u …
+    * Markdownový dokument se po převodu do \TeX u zkompiluje.
+    * Dokument nemůže cyklit ani přistupovat k příkazové řádce.
+  2. … nebo hybridní značkování
+    * Markdown byl navržen jako doplněk HTML, ne jako náhrada.
+    * Strukturně jednoduché sekce mohou být značkovány pouze Markdownem,
+      složité pak pomocí \TeX ových maker.
+  3. Krátká křivka učení
 
 \end{frame}
 
-## Existing Solutions
+## Existující softwarová řešení
 
 \begin{frame}
 
 ### \subsecname
-#### The Swiss Army Knife of Pandoc
+#### Švýcarský armádní nůž Pandoc
 
-> If you need to _convert files from one markup format into another_,
+> If you need to convert files from one markup format into another,
 > Pandoc is your swiss-army knife.
 
-\hfill --- @macfarlane16-1, emphasis mine
+\hfill --- @macfarlane16-1
 
-  * A multi-target publishing software.
-  * Supports tens of markup languages (Markdown, \LaTeX, HTML, XML Docbook)
-    and output formats (ODF, OOXML, PDF).
-  * The use of Pandoc for the preparation of \LaTeX{} documents has been
-    described by @dominici14\.
+  * Nástroj pro konverze a víceformátové publikování.
+  * Podporuje převod mezi desítkami značkovacích jazyků (Markdown, \LaTeX,
+    HTML, XML Docbook) a výstupních formátů (ODF, OOXML, PDF).
+  * Přípravu \LaTeX ových dokumentů pomocí Pandocu popisuje @dominici14\.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with Pandoc?
+#### Cožpak mi ani Pandoc nepřijde dost dobrý?
 
-  1. No Way to Change Output Markup
+  1. Nelze ovlivnit výstupní značkování.
     ```markdown
-    # Heading {#link}
-    This is [a link](#link).
+    # Nadpis {#nadpis}
+    [Jeden](#nadpis) odkaz a [druhý](https://odkaz.cz/).
     ```
     \becomes
     ```tex
-    \hypertarget{link}{\section{Heading}\label{link}}
-    This is \protect\hyperlink{link}{a link}.
+    \hypertarget{nadpis}{\section{Nadpis}\label{nadpis}}
+    \protect\hyperlink{nadpis}{Jeden} odkaz a
+    \href{https://odkaz.cz/}{druhý}.
     ```
-  2. Not a Part of \TeX{} Distributions
-    * Markdown documents cannot be directly edited at collaborative \TeX{}
-      platforms such as Share\LaTeX{} or Overleaf.
+  2. Nejedná se o součást \TeX ových distribucí.
+    * Markdownové dokumenty nelze přímo editovat na kolaborativních
+      \TeX ových platformách (Share\LaTeX, Overleaf).
+    * Konstatní verze \TeX ové distribuce negarantuje stabilní výstup.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with Pandoc?
+#### Cožpak mi ani Pandoc nepřijde dost dobrý?
 
-  3. Half-hybrid, Half-sandboxed
-    * The input is heuristically parsed and sanitized:
+  3. Částečné odstínění od \TeX u, částečně hybridní značkování
+    * Vstupní dokument je po načtení heuristicky očištěn od speciálních
+      znaků plain \TeX u:
       ```tex
-      This {will} 2^n \begin{get} s~nitized and \this{will}
-      not \begin{equation}2^n\end{equation} $2^n$.
+      Toto {vše} 2^n \begin{bude} o~čištěno, ale \toto{už}
+      nikoliv \begin{equation}2^n\end{equation} $2^n$.
       ```
       \becomes
       ```tex
-      This \{will\} 2\^{}n \textbackslash{}begin\{get\}
-      s\textasciitilde{}nitized and \this{will} not
+      Toto \{vše\} 2\^{}n \textbackslash{}begin\{bude\}
+      o\textasciitilde{}čištěno, ale \toto{už} nikoliv
       \begin{equation}2^n\end{equation} \(2^n\).
       ```
-    * Malicious input such as
+    * Nebezpečné vstupy jako
       ```tex
-      \def\shell{18} \immediate\write\shell{sudo rm -rf /}
+      \def\shell{18}\immediate\write\shell{sudo rm -rf /}
       ```
-      is left alone by Pandoc.
+      jsou Pandocem ponechány beze změny.
 
 \end{frame}
 
-# The Markdown Package
-## Building a Parser
+# Balíček `markdown.tex`
+## Návrh parseru jazyka Markdown
 
 \begin{frame}
 
 ### \subsecname
-#### Is \TeX{} Up to the Task?
+#### Je \TeX{} vhodným jazykem?
 
-There exist formal language parsers written solely in \TeX. These parsers
-recognize regular [@l3proj16] and context-free LL(1) languages [@carliste00].
-Markdown is not context-free:
-```
-``There is a literal backtick (`) here.``
-```
-and a parser needs to be able to backtrack over the entire input:
-```
-[this is not a link](http://link.com/ "Title"
-```
+Existují parsery formálních jazyků napsané v \TeX u. Tyto parsery
+rozpoznávají regulární [@l3proj16] a bezkontextové LL(1) jazyky
+[@carliste00].  Markdown však není bezkontextový
 
-Implementing a recursive-descent parser with backtracking in \TeX{} is
-possible, but generally a bad idea:
-
-  * Difficult to Maintain, Highly Unidiomatic
-  * Lack of Efficient Data Structures
-
+```markdown
+``Obrácené apostrofy (`) lze psát i v ukázkách kódu.``
+```
+a parser se v degenerovaných případech musí vracet přes celý vstup:
+```markdown
+[toto není dýmka](https://dymka.cz/ "Dýmka"
+```
+Implementace v \TeX u tedy je možná, ale díky absenci vhodných datových
+struktur pro posun po vstupním řetězci bez kopírování také vysoce
+neefektivní.
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Can We Use Lua Instead of \TeX?
+#### Co tedy použít namísto \TeX u?
 
 > Lua is a powerful, efficient, lightweight, embeddable scripting language. It
 > supports procedural programming, object-oriented programming, functional
@@ -501,19 +517,22 @@ possible, but generally a bad idea:
 > scripting language.
 
 \hfill --- @luatex16
+\vfill
+
+ * Interpretr Lua je dostupný všude tam, kde se nachází Lua\TeX.
+ * Pomocí malého triku jej lze spustit i z pdf\TeX u a \Hologo{XeTeX}u.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Can We Use Lua Instead of \TeX?
+#### Co tedy použít namísto \TeX u?
 
-  * With Lua\TeX, we can directly execute Lua code:
+  * V Lua\TeX u můžeme přímo spouštět kód v jazyce Lua:
     ```tex
     1 + 2 = \directlua{ tex.sprint(1 + 2) }
     ```
-  * With pdf\TeX{} and other modern \TeX{} engines, we can spawn a shell and
-    execute the Lua code in a separate process:
+  * V pdf\TeX u a \Hologo{XeTeX}u interpretr spustíme z příkazové řádky:
     ```tex
     1 + 2 = \newwrite\script
     \immediate\openout\script=script.lua
@@ -527,52 +546,50 @@ possible, but generally a bad idea:
 \begin{frame}
 
 ### \subsecname
-#### The Lunamark Library
+#### Knihovna Lunamark
 
-  * Lunamark [@macfarlane16-2] is a Markdown parser for Lua.
-  * The language is specified using a Parsing Expression Grammar
-    (PEG) via the LPeg C library (with some cheating).
-    * PEGs are CFGs with ordered choice; as a corrolary, any PEG is
-      unambiguous. [@ford04] An input word $u$ can be parsed according to a PEG
-      $G$ in linear time relative to the size of $u$. [@ford02] It is
-      conjectured that not all CFLs are recognized by a PEG.
-    * The dependencies of Lunamark were all either
-      compiled into Lua\TeX{}
-    (LPeg, Slnunicode), or unneeded (Cosmo, Alt-getopt).
-  * The library has been released under the Expat (MIT) License.
+  * Lunamark [@macfarlane16-2] je parser jazyka Markdown napsaný v jazyce Lua.
+  * Jazyk je specifikován pomocí formalismu Parsing Expression
+    Grammar~(PEG) (a s trochou podvádění) s využitím knihovny LPeg psané v
+    jazyce C.
+  * Veškeré závislosti knihovny byly buďto zakompilované do Lua\TeX u
+    (LPeg, Slnunicode), nebo nepotřebné (Cosmo, Alt-getopt).
+  * Knihovna byla vypuštěna pod licencí Expat (MIT).
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### The Lunamark Library
+#### Knihovna Lunamark
 
-The modified version of Lunamark:
+Knihovnu jsem modifikoval tak, aby generovala parsovací strom zakódovaný
+pomocí \TeX ových maker namísto prezentačního značkování:
 
-  * produces a parse tree rather than presentation markup:
-    ```markdown
-    # Heading
-    This is [a link](#link).
-    ```
-    \becomes
-    ```tex
-    \markdownRendererHeadingOne{Heading}
-    This is \markdownRendererLink{a link}{#link}{#link}{}.
-    ```
+```markdown
+# Nadpis
+Toto je [odkaz](#odkaz).
+```
+\becomes
+```tex
+\markdownRendererHeadingOne{Nadpis}
+Toto je \markdownRendererLink{odkaz}{#odkaz}{#odkaz}{}.
+```
 
-The Markdown \TeX{} package:
+***
 
-  * converts a Markdown document to the parse tree via Lunamark,
-  * defines the macros and typesets the parse tree using \TeX{}.
+Zároveň jsem připravil makrobalík `markdown.tex`, který:
+
+  * zkonvertuje dokument v jazyce Markdown pomocí Lunamarku,
+  * zadefinuje \TeX ová makra Lunamarku a dokument vysází.
 
 \end{frame}
 
-## Using Markdown from Within \LaTeX
+## Použití balíku `markdown.tex` v \LaTeX u
 
 \begin{frame}
 
 ### \subsecname
-#### The Sandbox and Hybrid Modes
+#### Odstíněný a hybridní režim
 
 ```tex
 \documentclass{article}
@@ -587,125 +604,153 @@ The Markdown \TeX{} package:
 \end{document}
 ```
 
+\becomes\medskip
+
 Foo bar \markdownRendererBackslash TeX\markdownRendererLeftBrace{}\markdownRendererRightBrace{} \markdownRendererDollarSign{}2\markdownRendererCircumflex{}n\markdownRendererDollarSign{}. Foo bar \TeX{} $2^n$.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Mapping Markdown Tokens to \TeX{} Macros
+#### Mapování tokenů jazyka Markdown na \TeX ová makra
 
 ```tex
 \documentclass{article}
 \usepackage{markdown}
 \markdownSetup{renderers = {
-  link = {#1\footnote{See \url{#3} (#4)}},
+  link = {#1\footnote{Vizte \url{#3} (#4)}},
 }}
 \begin{document}
 \begin{markdown}
-  Foo [bar](http://link.com "Link").
+  Foo [bar](https://odkaz.cz/ "Titulek").
 \end{markdown}
 \end{document}
 ```
 
-Foo bar\footnote[frame]{See \url{http://link.com} (Link)}.
+\becomes\medskip
+
+Foo bar\footnote[frame]{Vizte \url{https://odkaz.cz/} (Titulek)}.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Syntax Extensions
+#### Rozšíření syntaxe
 
-  * Some syntax extensions were already supported by Lunamark:
-    * footnotes,
-    * definition lists,
-  * New syntax extensions were added as a part of the project:
-    * citations,
-    * fenced code blocks.
+  * Jazyk Markdown má poměrně chudou syntax. Existuje proto množství
+    syntaktických rozšíření, z nichž některá byla podporována již knihovnou
+    Lunamark:
+    * poznámky pod čarou,
+    * definiční seznamy,
+  * V rámci projektu byla přidána podpora pro následující syntaktická
+    rozšíření:
+    * citace,
+    * alternativní syntax pro poznámky pod čarou,
+    * oplocené ukázky zdrojového kódu.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Syntax Extensions -- `\markdownSetup{footnotes}`
+#### Syntaktická rozšíření -- `\markdownSetup{footnotes}`
 
 ```tex
-Here is a footnote reference,[^1] and another.[^long]
+Toto je poznámka pod čarou,[^1] a tady je další.[^pozn]
 
-[^1]: Here is the footnote.
+[^1]: Zde je text poznámky.
 
-[^long]: Here’s one with multiple blocks.
+[^pozn]: Toto je poznámka s několika odstavci.
 
-    Subsequent paragraphs are indented to show that
-they belong to the footnote.
+    Následující odstavce jsou odsazené, aby bylo zřejmé,
+že stále ještě náleží k poznámce.
 ```
 
-\vfill
+\becomes\medskip
   
-Here is a footnote reference,[^1] and another.[^long]
+Toto je poznámka pod čarou,[^1] a tady je další.[^pozn]
 
-[^1]: Here is the footnote.
+[^1]: Zde je text poznámky.
 
-[^long]: Here’s one with multiple paragraphs.
+[^pozn]: Toto je poznámka s několika odstavci.
 
-    Subsequent paragraphs are indented to show that
-they belong to the footnote.
+    Následující odstavce jsou odsazené, aby bylo zřejmé,
+že stále ještě náleží k poznámce.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Syntax Extensions -- `\markdownSetup{definitionLists}`
+#### Syntaktická rozšíření -- `\markdownSetup{inlineFootnotes}`
 
 ```tex
-Term 1
-:   Definition
-
-Term 2
-:   Definition with
-
-    multiple paragraphs
+Toto je alternativní syntax poznámek pod čarou.^[Tyto
+poznámky pod čarou se snáze píší, protože není třeba
+vybírat identifikátor a přesouvat se s kurzorem pod
+odstavec.]
 ```
 
-\vfill
-  
-Term 1
-:   Definition 1
+\becomes\medskip
 
-Term 2
-:   Definition
-
-    with multiple paragraphs
+Toto je alternativní syntax poznámek pod čarou.^[Tyto
+poznámky pod čarou se snáze píší, protože není třeba
+vybírat identifikátor a přesouvat se s kurzorem pod
+odstavec.]
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Syntax Extensions -- `\markdownSetup{citations}`
+#### Syntaktická rozšíření -- `\markdownSetup{definitionLists}`
 
 ```tex
-Here is a parenthetical citation [@knuth86] and
-a string of several [see @knuth86, pp. 33-35;
-also @gruber04, chap. 1].
+První pojem
+:   Definice
 
-Here is a text citation @knuth86 and a string of
-several @knuth86 [pp. 33-35; @gruber04, chap. 1].
+Druhý pojem
+:   Definice se
+
+    dvěma odstavci
 ```
 
-\vfill
+\becomes\medskip
   
-Here is a parenthetical citation [@knuth86] and
-a string of several [see @knuth86, pp. 33-35;
-also @gruber04, chap. 1].
+První pojem
+:   Definice
 
-Here is a text citation @knuth86 and a string of
-several @knuth86 [pp. 33-35; @gruber04, chap. 1].
+Druhý pojem
+:   Definice se
+
+    dvěma odstavci
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### Syntax Extensions -- `\markdownSetup{fencedCode}`
+#### Syntaktická rozšíření -- `\markdownSetup{citations}`
+
+```tex
+Zde je citace s použitím závorek [@knuth86] a zde
+je řetězec několika [viz @knuth86, s. 33--35;
+a také @gruber04, kap. 1].
+
+Zde je textová citace @knuth86 a zde je řetězec
+několika @knuth86 [s. 33--35; @gruber04, kap. 1].
+```
+
+\becomes\medskip
+  
+Zde je citace s použitím závorek [@knuth86] a zde
+je řetězec několika [viz @knuth86, s. 33--35;
+a také @gruber04, kap. 1].
+
+Zde je textová citace @knuth86 a zde je řetězec
+několika @knuth86 [s. 33--35; @gruber04, kap. 1].
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntaktická rozšíření -- `\markdownSetup{fencedCode}`
 
 ```
 ~~~ js
@@ -716,7 +761,7 @@ else
 ~~~~~~
 ```
 
-\vfill
+\becomes\medskip
 
 ~~~ js
 if (a > b)
@@ -727,47 +772,10 @@ else
 
 \end{frame}
 
-# Conclusion
-
-\begin{frame}
-
-### \secname
-#### The Missing Pieces of the Puzzle
-
- * Apart from the \LaTeX{} interface, the package also exposes Lua, plain
-   \TeX{} and Con\TeX t interfaces.
- * The package includes 82 pages of user and technical documentation.
-   [@novotny16-2]
- * A section on writing \LaTeX{} documents in Markdown was added to the
-   fithesis3 sample documents.
- * The package was released under the \LaTeX{} Project Public License (LPPL)
-   1.3 on the Comprehensive \TeX{} Archive Network (CTAN), GitHub, and the
-   faculty GitLab. [@novotny16-1] It is available in updated \TeX{} Live
-   2016.
-
-\end{frame}
-\begin{frame}
-
-### \secname
-#### Reception by the Community
-
-  * The syntax extensions were backported to Lunamark and merged by MacFarlane,
-    resulting in a new minor version release of the library (0.5.0).
-    [@novotny16-3]
-  * The package was featured on the twitter profile of Overleaf -- a major
-    online service for preparing \LaTeX{} documents -- along with original
-    example documents. [@overleaf16]
-  * The package was reviewed in the bulletin of the German \TeX{} Users Group
-    (DANTE e.V.). [@fenn16, pp. 43]
-  * An article about the package has been accepted for publication in the
-    bulletin of the Czechoslovak \TeX{} Users Group (CSTUG).
-
-\end{frame}
-
-# Bibliography
+# \refname
 
 \begin{frame}[allowframebreaks]
-### \secname
+### \refname
 \nocite{*}
 \printbibliography
 \end{frame}
