@@ -16,6 +16,7 @@
 \markdownSetup{
   renderers = {
     emphasis = {\alert{#1}},
+    strongEmphasis = {\emph{#1}},
     headingOne = {\section{#1}},
     headingTwo = {\subsection{#1}},
     headingThree = {\frametitle{#1}},
@@ -389,11 +390,10 @@ This is a text paragraph with _emphasis_.
     * Recall: @knuth86 and @downey16 are _\textasciitilde 22\,\% markup_.
     * @gillespie16 is 5.5\,\% markup.
     * @grolemund16 is 3.8\,\% markup.
-  2. Sandboxing Support
+  2. **Either** Sandboxing Support …
     * A Markdown document converted to \TeX{} will always compile.
     * The document may neither halt nor access the shell.
-  3. Hybrid Markup Support
-    * Markdown was designed to supplement HTML, not replace it.
+  3. … **or** Hybrid Markup Support
     * Structurally simple sections can use pure Markdown, complex sections
       may combine Markdown and the host markup.
   4. Mild Learning Curve
