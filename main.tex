@@ -22,6 +22,7 @@
     headingThree = {\frametitle{#1}},
     headingFour = {\framesubtitle{#1}},
     footnote = {\footnote[frame]{#1}},
+    image = {\citetitle{#1}~\autocite{#1}}
   }
 }
 
@@ -297,15 +298,15 @@
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with \TeX?
+#### \TeX{} as a Markup Language
 
   1. High Markup to Text Ratio
-    * @knuth86 is 22\,\% markup.
-    * @downey16 is 21\,\% markup.
+    * ![knuth86]() is 22\,\% markup (plain \TeX{}).
+    * ![downey16]() is 21\,\% markup (\LaTeX{}).
   2. Zero Sandboxing Support
     * The document you are typesetting may not compile.
       ```tex
-      … a file named \texttt{evil_underscores.tex} …
+      \texttt{innocent_looking_underscores.tex}
       ```
     * The document you are typesetting may halt.
       ```tex
@@ -388,8 +389,8 @@ This is a text paragraph with _emphasis_.
 
   1. Minimal Markup to Text Ratio
     * Recall: @knuth86 and @downey16 are _\textasciitilde 22\,\% markup_.
-    * @gillespie16 is 5.5\,\% markup.
-    * @grolemund16 is 3.8\,\% markup.
+    * ![gillespie16]() is 5.5\,\% markup.
+    * ![grolemund16]() is 3.8\,\% markup.
   2. **Either** Sandboxing Support …
     * A Markdown document converted to \TeX{} will always compile.
     * The document may neither halt nor access the shell.
@@ -416,7 +417,7 @@ This is a text paragraph with _emphasis_.
   * Supports tens of markup languages (Markdown, \LaTeX, HTML, XML Docbook)
     and output formats (ODF, OOXML, PDF).
   * The use of Pandoc for the preparation of \LaTeX{} documents has been
-    described by @dominici14\.
+    described in TUGBoat by @dominici14\.
 
 \end{frame}
 \begin{frame}
