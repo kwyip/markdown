@@ -319,24 +319,6 @@
   3. Steep Learning Curve
 
 \end{frame}
-\iffalse
-\begin{frame}
-
-### \subsecname
-#### The Language of Markdown
-
-> The overriding design goal for Markdown’s formatting syntax is to make it
-> *as readable as possible*. The idea is that a Markdown-formatted document
-> should be _publishable as-is, as plain text_, without looking like it’s been
-> marked up with tags or formatting instructions. While Markdown’s syntax has
-> been influenced by several existing text-to-HTML filters, the single
-> biggest source of inspiration for Markdown’s syntax is *the format of plain
-> text email*.
-
-\hfill --- @gruber04, emphasis mine
-
-\end{frame}
-\fi
 \begin{frame}
 
 ### \subsecname
@@ -385,7 +367,23 @@ This is a text paragraph with _emphasis_.
 \begin{frame}
 
 ### \subsecname
-#### How is Markdown Useful?
+#### The Language of Markdown
+
+> The overriding design goal for Markdown’s formatting syntax is to make it
+> *as readable as possible*. The idea is that a Markdown-formatted document
+> should be _publishable as-is, as plain text_, without looking like it’s been
+> marked up with tags or formatting instructions. While Markdown’s syntax has
+> been influenced by several existing text-to-HTML filters, the single
+> biggest source of inspiration for Markdown’s syntax is *the format of plain
+> text email*.
+
+\hfill --- @gruber04, emphasis mine
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Markdown as a Markup language
 
   1. Minimal Markup to Text Ratio
     * Recall: @knuth86 and @downey16 are _\textasciitilde 22\,\% markup_.
@@ -425,7 +423,7 @@ This is a text paragraph with _emphasis_.
 ### \subsecname
 #### What is Wrong with Pandoc?
 
-  1. No Way to Change Output Markup
+  1. Difficult to Change Output Markup
     ```markdown
     # Heading {#link}
     This is [a link](#link).
@@ -535,15 +533,11 @@ possible, but generally a bad idea:
 ### \subsecname
 #### The Lunamark Library
 
-  * Lunamark [@macfarlane16-2] is a Markdown parser for Lua.
+  * Lunamark [@macfarlane16-2] is a Markdown parser in Lua.
   * The language is specified using a Parsing Expression Grammar
-    (PEG) via the LPeg C library (with some cheating).
-    * PEGs are CFGs with ordered choice; as a corrolary, any PEG is
-      unambiguous. [@ford04] An input word $u$ can be parsed according to a PEG
-      $G$ in linear time relative to the size of $u$. [@ford02] It is
-      conjectured that not all CFLs are recognized by a PEG.
-    * The dependencies of Lunamark were all either
-      compiled into Lua\TeX{}
+    (PEG) via the LPeg C library (and a bit of cheating).
+  * The dependencies of Lunamark were all either
+    compiled into Lua\TeX{}
     (LPeg, Slnunicode), or unneeded (Cosmo, Alt-getopt).
   * The library has been released under the Expat (MIT) License.
 
@@ -553,23 +547,21 @@ possible, but generally a bad idea:
 ### \subsecname
 #### The Lunamark Library
 
-The modified version of Lunamark:
+A modified version of Lunamark transforms an input Markdown document into a
+plain \TeX{} document that encodes its structure:
 
-  * produces a parse tree rather than presentation markup:
-    ```markdown
-    # Heading
-    This is [a link](#link).
-    ```
-    \becomes
-    ```tex
-    \markdownRendererHeadingOne{Heading}
-    This is \markdownRendererLink{a link}{#link}{#link}{}.
-    ```
+```markdown
+# Heading
+This is [a link](#link).
+```
+\becomes
+```tex
+\markdownRendererHeadingOne{Heading}
+This is \markdownRendererLink{a link}{#link}{#link}{}.
+```
 
-The Markdown \TeX{} package:
-
-  * converts a Markdown document to the parse tree via Lunamark,
-  * defines the macros and typesets the parse tree using \TeX{}.
+A plain \TeX{} macro package defines the `\markdownRenderer`\ldots{} macros and
+typesets the plain \TeX{} document produced by Lunamark.
 
 \end{frame}
 
