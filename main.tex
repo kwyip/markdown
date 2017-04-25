@@ -12,7 +12,9 @@
   fencedCode,
   citations,
   definitionLists,
+  contentBlocks,
 ]{markdown}
+\usepackage{ifthen}
 \markdownSetup{
   renderers = {
     emphasis = {\alert{#1}},
@@ -21,10 +23,76 @@
     headingTwo = {\subsection{#1}},
     headingThree = {\frametitle{#1}},
     headingFour = {\framesubtitle{#1}},
+    headingFive = {%
+      \bigskip
+      {\Large\bfseries#1}
+      \smallskip
+    },
     footnote = {\footnote[frame]{#1}},
-    image = {\citetitle{#1}~\autocite{#1}}
+    image = {\citetitle{#1}~\autocite{#1}},
+    contentBlock = {%
+      \ifthenelse{\equal{#1}{csv}}{%
+        \begin{table}%
+          \begin{center}%
+            \csvautotabular{#3}%
+          \end{center}
+          \ifx\empty#4\empty\else
+            \caption{#4}%
+          \fi
+          \label{tab:#1}%
+        \end{table}%
+      }{%
+        \ifthenelse{\equal{#1}{png}}{%
+          \begin{figure}%
+            \begin{center}%
+              \includegraphics[width=0.75\textwidth]{#3}%
+            \end{center}
+            \ifx\empty#4\empty\else
+              \caption{#4}%
+            \fi
+            \label{fig:#1}%
+          \end{figure}%
+        }{%
+          \markdownInput{#3}%
+        }%
+      }%
+    }
   }
 }
+
+\begingroup
+\catcode`\@=11
+\catcode`\%=12
+\catcode`\^^A=14
+\global\def\markdownRendererContentBlockOnlineImage#1#2#3#4{^^A
+  \immediate\write18{^^A
+    if printf '%s' "#3" | grep -q ^http; then
+      OUTPUT="$(printf '%s' "#3" | md5sum |
+                cut -d' ' -f1).^^A
+              $(printf '%s' "#3" |
+                sed 's/.*[.]//')";
+      if ! [ -e "$OUTPUT" ]; then
+        wget -O "$OUTPUT" '#3' || rm "$OUTPUT";
+        convert "$OUTPUT" png:"$OUTPUT";
+      fi;
+      printf '%s%%' "$OUTPUT" > \jobname.fetched;
+    else
+      printf '%s%%' "#3"      > \jobname.fetched;
+    fi}^^A
+  {\everyeof={\noexpand}^^A
+  \edef\filename{\@@input"\jobname.fetched" }^^A
+  \begin{figure}^^A
+    \begin{center}^^A
+      \includegraphics[width=0.75\textwidth]{\filename}^^A
+    \end{center}
+    \ifx\empty#4\empty\else
+      \caption{#4}^^A
+    \fi
+    \label{fig:#1}^^A
+  \end{figure}^^A
+  }^^A
+}^^A
+\endgroup
 
 % Bibliography setup
 \usepackage{filecontents}
@@ -216,12 +284,12 @@
                      \url{https://gitlab.fi.muni.cz/xnovot32/markdown}},
   langid        =   {english}}
 
-@MANUAL{novotny16-2,
+@MANUAL{novotny17,
   author        =   {Novotný, Vít},
-  year          =   {2016},
+  year          =   {2017},
   title         =   {A Markdown Interpreter for \TeX{}},
   url           =   {http://mirrors.ctan.org/macros/generic/markdown/markdown.pdf},
-  urldate       =   {2016-08-17},
+  urldate       =   {2017-04-26},
   langid        =   {english}}
 
 @ONLINE{novotny16-3,
@@ -252,6 +320,9 @@
 ]{biblatex}
 \addbibresource{main.bib}
 
+% PDF comments
+\usepackage[author={Vít Novotný}, color=yellow]{pdfcomment}
+
 % Miscellaneous packages and other setup
 \ifx\ifdarkframes\undefined
   \expandafter\newif\csname ifdarkframes\endcsname
@@ -273,7 +344,7 @@
 \title{
   Using \texorpdfstring{%
     \raisebox{-1.7mm}{\includegraphics[scale=0.2]{markdown-mark}}%
-  }{Markdown} inside \TeX{} Documents}
+  }{Markdown} inside \textcolor{white}{\TeX{}} Documents}
 \subtitle{%
   TUG@Bacho\TeX{} 2017
   \texorpdfstring{\url{https://github.com/witiko/markdown}}{}%
@@ -298,7 +369,7 @@
 \begin{frame}
 
 ### \subsecname
-#### \TeX{} as a Markup Language
+#### \TeX{} as a Content Creation Language
 
   1. High Markup to Text Ratio
     * ![knuth86]() is 22\,\% markup (plain \TeX{}).
@@ -367,23 +438,7 @@ This is a text paragraph with _emphasis_.
 \begin{frame}
 
 ### \subsecname
-#### The Language of Markdown
-
-> The overriding design goal for Markdown’s formatting syntax is to make it
-> *as readable as possible*. The idea is that a Markdown-formatted document
-> should be _publishable as-is, as plain text_, without looking like it’s been
-> marked up with tags or formatting instructions. While Markdown’s syntax has
-> been influenced by several existing text-to-HTML filters, the single
-> biggest source of inspiration for Markdown’s syntax is *the format of plain
-> text email*.
-
-\hfill --- @gruber04, emphasis mine
-
-\end{frame}
-\begin{frame}
-
-### \subsecname
-#### Markdown as a Markup language
+#### Markdown as a Content Creation Language
 
   1. Minimal Markup to Text Ratio
     * Recall: @knuth86 and @downey16 are _\textasciitilde 22\,\% markup_.
@@ -416,12 +471,22 @@ This is a text paragraph with _emphasis_.
     and output formats (ODF, OOXML, PDF).
   * The use of Pandoc for the preparation of \LaTeX{} documents has been
     described in TUGBoat by @dominici14\.
+    \pdfcomment{Showcase the following conversions:
+      Markdown -> LaTeX,
+      LaTeX -> Markdown,
+      Markdown -> PDF,
+      PDF -> Markdown,
+      DOCX -> Markdown,
+      DOCX -> HTML,
+      DOCX -> LaTeX,
+      DOCX -> PDF.
+      Describe the Mediator design pattern used for the conversion}
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with Pandoc?
+#### Why Is Pandoc Not Ideal?
 
   1. Difficult to Change Output Markup
     ```markdown
@@ -441,7 +506,7 @@ This is a text paragraph with _emphasis_.
 \begin{frame}
 
 ### \subsecname
-#### What is Wrong with Pandoc?
+#### Why Is Pandoc Not Ideal?
 
   3. Half-hybrid, Half-sandboxed
     * The input is heuristically parsed and sanitized:
@@ -463,7 +528,7 @@ This is a text paragraph with _emphasis_.
 
 \end{frame}
 
-# The Markdown Package
+# The \texttt{markdown.tex} Package
 ## Building a Parser
 
 \begin{frame}
@@ -482,11 +547,8 @@ and a parser needs to be able to backtrack over the entire input:
 [this is not a link](http://link.com/ "Title"
 ```
 
-Implementing a recursive-descent parser with backtracking in \TeX{} is
-possible, but generally a bad idea:
-
-  * Difficult to Maintain, Highly Unidiomatic
-  * Lack of Efficient Data Structures
+Implementing such a parser in \TeX{} is possible, but generally a bad idea due
+to the lack of efficient data structures.
 
 \end{frame}
 \begin{frame}
@@ -538,14 +600,14 @@ possible, but generally a bad idea:
     (PEG) via the LPeg C library (and a bit of cheating).
   * The dependencies of Lunamark were all either
     compiled into Lua\TeX{}
-    (LPeg, Slnunicode), or unneeded (Cosmo, Alt-getopt).
+    (LPeg, Slnunicode), or unnecessary (Cosmo, Alt-getopt).
   * The library has been released under the Expat (MIT) License.
 
 \end{frame}
 \begin{frame}
 
 ### \subsecname
-#### The Lunamark Library
+#### The High-Level Overview of the \texttt{markdown.tex} Package
 
 A modified version of Lunamark transforms an input Markdown document into a
 plain \TeX{} document that encodes its structure:
@@ -561,7 +623,7 @@ This is \markdownRendererLink{a link}{#link}{#link}{}.
 ```
 
 A plain \TeX{} macro package defines the `\markdownRenderer`\ldots{} macros and
-typesets the plain \TeX{} document produced by Lunamark.
+typesets the above document.
 
 \end{frame}
 
@@ -619,7 +681,8 @@ Foo bar\footnote[frame]{See \url{http://link.com} (Link)}.
     * definition lists,
   * New syntax extensions were added as a part of the project:
     * citations,
-    * fenced code blocks.
+    * fenced code blocks,
+    * IA\,Writer content blocks.
 
 \end{frame}
 \begin{frame}
@@ -724,6 +787,68 @@ else
 ~~~~~~
 
 \end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntax Extensions -- `\markdownSetup{contentBlocks}` I
+
+```
+/Flowchart.png "Engineering Flowchart"
+```
+
+\vfill
+
+/Flowchart.png "Engineering Flowchart"
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntax Extensions -- `\markdownSetup{contentBlocks}` II
+
+```
+/Scientists.csv (Great Minds of the 19th century)
+```
+
+\vfill
+
+/Scientists.csv (Great Minds of the 19th century)
+
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntax Extensions -- `\markdownSetup{contentBlocks}` III
+
+```
+/chapters/01.txt
+/chapters/02.txt
+```
+
+\vfill
+
+/chapters/01.txt
+/chapters/02.txt
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntax Extensions -- `\markdownSetup{contentBlocks}` IV
+
+```
+https://tug.org/tugboat/noword.jpg
+(The Communications of the \TeX{} Users Group)
+```
+
+\vfill
+
+https://tug.org/tugboat/noword.jpg
+(The Communications of the \TeX{} Users Group)
+\pdfcomment{Show as an example}
+
+\end{frame}
 
 # Conclusion
 
@@ -732,22 +857,23 @@ else
 ### \secname
 #### The Missing Pieces of the Puzzle
 
- * Apart from the \LaTeX{} interface, the package also exposes Lua, plain
-   \TeX{} and Con\TeX t interfaces.
- * The package includes 82 pages of user and technical documentation.
-   [@novotny16-2]
- * A section on writing \LaTeX{} documents in Markdown was added to the
-   fithesis3 sample documents.
- * The package was released under the \LaTeX{} Project Public License (LPPL)
-   1.3 on the Comprehensive \TeX{} Archive Network (CTAN), GitHub, and the
-   faculty GitLab. [@novotny16-1] It is available in updated \TeX{} Live
-   2016.
+The \texttt{markdown.tex} package
+
+ * enables the use of Markdown in environments where tools from outside \TeX{}
+   distributions are unavailable,
+ * gives the authors full control over how individual Markdown elements are
+   rendered and how much access to \TeX{} markup the Markdown documents have,
+ * exposes Lua, plain \TeX{}, \LaTeX{}, and Con\TeX t interfaces.
+ * includes 100 pages of documentation [@novotny17],
+ * was released under the \LaTeX{} Project Public License (LPPL)
+   1.3 on the Comprehensive \TeX{} Archive Network (CTAN) and on GitHub
+   (\url{https://github.com/witiko/markdown}).
 
 \end{frame}
 \begin{frame}
 
 ### \secname
-#### Reception by the Community
+#### The Missing Pieces of the Puzzle
 
   * The syntax extensions were backported to Lunamark and merged by MacFarlane,
     resulting in a new minor version release of the library (0.5.0).
@@ -755,13 +881,10 @@ else
   * The package was featured on the twitter profile of Overleaf -- a major
     online service for preparing \LaTeX{} documents -- along with original
     example documents. [@overleaf16]
-  * The package was reviewed in the bulletin of the German \TeX{} Users Group
-    (DANTE e.V.). [@fenn16, pp. 43]
-  * An article about the package has been accepted for publication in the
-    bulletin of the Czechoslovak \TeX{} Users Group (CSTUG).
 
 \end{frame}
 
+# Q\&A
 # Bibliography
 
 \begin{frame}[allowframebreaks]
