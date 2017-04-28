@@ -13,6 +13,7 @@
   citations,
   definitionLists,
   contentBlocks,
+  html,
 ]{markdown}
 \usepackage{ifthen}
 \markdownSetup{
@@ -349,6 +350,7 @@
   \texorpdfstring{\url{https://github.com/witiko/markdown}}{}%
 }
 \author{Vít Novotný}
+
 \begin{document}
 \frame{\maketitle}
 \AtBeginSection[]{\frame{\sectionpage}}
@@ -676,12 +678,29 @@ Foo bar\footnote[frame]{See \url{http://link.com} (Link)}.
 #### Syntax Extensions
 
   * Some syntax extensions were already supported by Lunamark:
+    * HTML,
     * footnotes,
     * definition lists,
   * New syntax extensions were added as a part of the project:
     * citations,
     * fenced code blocks,
     * IA\,Writer content blocks.
+
+\end{frame}
+\begin{frame}
+
+### \subsecname
+#### Syntax Extensions -- `\markdownSetup{html}`
+
+```html
+HTML <b>tags</b> such as &lt;b&gt; are recognized
+<!-- and comments are just ignored-->.
+```
+
+\vfill
+  
+HTML <b>tags</b> such as &lt;b&gt; are recognized<!--
+and comments are just ignored-->.
 
 \end{frame}
 \begin{frame}
